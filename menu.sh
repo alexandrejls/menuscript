@@ -188,35 +188,13 @@ install_speedtest() {
 install_ssh() {
     if [ -e "/etc/ssh/sshd_config" ]; then
         
-# Modificar a porta
-    change_ssh_port() {
-    read -p "Deseja alterar a porta ssh? (s/n): " choice
-    if [ "$choice" == "s" ]; then
-    read -p "Digite a nova porta SSH: " new_port
-    sed -i 's/#Port 22/Port $new_port/' /etc/ssh/sshd_config
-        echo -e "Porta ssh alterada para $new_port.\n"
-    else
-        echo -e "Nenhuma alteração na porta ssh.\n"
-    fi
-    }
-# Modificar a permissão    
-    change_root() {
-    read -p "Deseja alterar a permissão root no ssh? (s/n): " choice
-    if [ "$choice" == "s" ]; then
-    sed -i 's/#PermitRootLogin without-password/PermitRootLogin yes/' /etc/ssh/sshd_config
-    sed -i 's/PermitRootLogin without-password/PermitRootLogin yes/' /etc/ssh/sshd_config
-    sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
-    sed -i 's/#PermitRootLogin yes/PermitRootLogin yes/' /etc/ssh/sshd_config
-        echo -e "Permissão root no ssh alterada.\n"
-    else
-        echo -e "Nenhuma alteração na permissão root no ssh.\n"
-    fi
-    }          
+       
         echo -e "ssh já está instalado.\n"
     else
         apt-get install -y ssh openssh-server | egrep 'version|instal'
-        change_ssh_port 
-        change_root
+        echo -e "Caso queira mudar as portas e permissões do ssh."
+        read -p "Será aberto para edição."
+        vi /etc/ssh/sshd_config
         echo -e "ssh instalado com sucesso.\n"
     systemctl restart ssh
     fi
@@ -235,7 +213,7 @@ install_webmin() {
     read -p "Deseja instalar o Webmin? (s/n): " choice
     if [ "$choice" = "s" ]; then
         echo -e "\nInstalando Webmin...\n"
-    bash webmin.sh
+    bash /root/menuscript/webmin.sh
     apt-get install -y --install-recommends webmin | egrep -i instalado | grep -v Lendo
     echo -e "\nWebmin instalado.\n"
     else
@@ -288,7 +266,7 @@ bashrc_script() {
     else
         echo -e "O arquivo .bashrc ainda não foi alterado pelo script."
         mv ~/.bashrc ~/.bashrc.old
-        cp .bashrc ~/.bashrc
+        cp /root/menuscript/.bashrc ~/.bashrc
         source ~/.bashrc
         source ~/.bashrc
         echo -e "\nbash alterado.\n"
@@ -327,7 +305,7 @@ disable_ipv6() {
         read -p "O IPv6 está habilitado. Deseja desativá-lo? (s/n): " choice
         if [ "$choice" = "s" ]; then
             # Desativa o IPv6
-            bash /root/script/ipv6.sh
+            bash /root/menuscript/ipv6.sh
             echo -e "IPv6 desativado com sucesso.\n"
         else
             echo -e "Nenhuma alteração feita.\n"
@@ -374,7 +352,7 @@ journal_script() {
     else
         echo -e "O arquivo journal ainda não foi alterado pelo script."
         mv /etc/systemd/journald.conf /etc/systemd/journald.conf.old
-        cp -a /root/script/journald.conf /etc/systemd/journald.conf
+        cp -a /root/menuscript/journald.conf /etc/systemd/journald.conf
         systemctl restart systemd-journald
         echo -e "journal alterado.\n"
     fi
