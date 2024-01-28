@@ -93,9 +93,9 @@ fi
 
 # Ask first
 if [ "$1" != "-f" ] && [ "$1" != "--force" ]; then
-  printf "Setup repository? (y/N) "
+  printf "Setup repository? (s/n) "
   read -r sslyn
-  if [ "$sslyn" != "y" ] && [ "$sslyn" != "Y" ]; then
+  if [ "$sslyn" != "s" ] && [ "$sslyn" != "S" ]; then
     exit
   fi
 fi

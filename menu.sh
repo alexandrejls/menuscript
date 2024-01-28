@@ -18,6 +18,7 @@ echo $AUTOR && echo $CRIACAO && echo $ATUALIZACAO
 $SEPARADOR 
 
 ############################################################################### bash-completion
+echo
 
 install_bash_completion() {
     # Verifica se já está instalado
@@ -189,9 +190,13 @@ install_ssh() {
     if [ -e "/etc/ssh/sshd_config" ]; then
         
        
-        echo -e "ssh já está instalado.\n"
+        echo -e "ssh já está instalado."
+        echo -e "Será aberto o sshd_conf para edição"
+        read -p "Modifique como necessário"
+        echo
+        vi /etc/ssh/sshd_config
     else
-        apt-get install -y ssh openssh-server | egrep 'version|instal'
+        apt-get install -y ssh openssh-server | egrep 'version|instal|instalados:'
         echo -e "Caso queira mudar as portas e permissões do ssh."
         read -p "Será aberto para edição."
         vi /etc/ssh/sshd_config
@@ -214,7 +219,7 @@ install_webmin() {
     if [ "$choice" = "s" ]; then
         echo -e "\nInstalando Webmin...\n"
     bash /root/menuscript/webmin.sh
-    apt-get install -y --install-recommends webmin | egrep -i instalado | grep -v Lendo
+    apt-get install -y --install-recommends webmin | egrep 'version|instal|instalados:'
     echo -e "\nWebmin instalado.\n"
     else
         echo -e "\nInstalação do Webmin cancelada.\n"
@@ -235,7 +240,7 @@ install_github() {
     if [ "$choice" = "s" ]; then
         echo -e "\nInstalando git...\n"
         apt-get update &> /dev/null
-        apt-get install -y git | egrep -i instalado | grep -v Lendo
+        apt-get install -y git | egrep -i instalado | egrep 'version|instal|instalados:'
         echo -e "\ngit instalado.\n"
     else
         echo -e "\nInstalação do git cancelada.\n"
@@ -287,7 +292,7 @@ install_man() {
     if [ "$choice" = "s" ]; then
         echo -e "\nInstalando man...\n"
         apt-get update &> /dev/null
-        apt-get install -y man | egrep -i instalado | grep -v Lendo
+        apt-get install -y man | egrep -i instalado | egrep 'version|instal|instalados:'
         echo -e "\nman instalado.\n"
     else
         echo -e "\nInstalação do man cancelada.\n"
@@ -330,7 +335,7 @@ install_rsyslog() {
     if [ "$choice" = "s" ]; then
         echo -e "\nInstalando rsyslog...\n"
         apt-get update &> /dev/null
-        apt-get install -y rsyslog | egrep -i instalado | grep -v Lendo
+        apt-get install -y rsyslog | egrep 'version|instal|instalados:'
         echo
         echo -e "Após apertar ENTER, será aberto o rsyslog.conf para edição." 
         read -p "Remova os logs desnecessários."
@@ -362,7 +367,7 @@ journal_script() {
 
 install_checkmk() {
     # Verifica 
-    if [ -x "$(command -v omdx)" ]; then
+    if [ -x "$(command -v omd)" ]; then
         echo -e "checkmk já está instalado.\n"
         return
     fi
@@ -373,7 +378,7 @@ install_checkmk() {
     if [ "$choice" = "s" ]; then
         echo -e "\nInstalando checkmk...\n"
         wget https://download.checkmk.com/checkmk/2.2.0p20/check-mk-cloud-2.2.0p20_0.bookworm_amd64.deb
-        apt-get install -y ./check-mk-cloud-2.2.0p20_0.bookworm_amd64.deb | egrep -i instalado | grep -v Lendo
+        apt install ./check-mk-cloud-2.2.0p20_0.bookworm_amd64.deb | egrep 'version|instal|instalados:'
         omd version
         omd create monitoramento
         omd start monitoramento
