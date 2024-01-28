@@ -107,11 +107,10 @@ install_htop() {
 install_wget() {
     # Verifica se já está instalado
     if [ -x "$(command -v wget)" ]; then
-        echo -e "wget já está instalado.\n"
+        echo -e "wget já está instalado."
         return
     fi
     # Pergunta se deseja instalar
-    echo
     read -p "Deseja instalar o wget? (s/n): " choice
     if [ "$choice" = "s" ]; then
         echo -e "\nInstalando Wget...\n"
@@ -194,7 +193,7 @@ install_ssh() {
     read -p "Deseja alterar a porta ssh? (s/n): " choice
     if [ "$choice" == "s" ]; then
     read -p "Digite a nova porta SSH: " new_port
-    sed -i "s/Port 22/Port $new_port/" /etc/ssh/sshd_config
+    sed -i 's/#Port 22/Port $new_port/' /etc/ssh/sshd_config
         echo -e "Porta ssh alterada para $new_port.\n"
     else
         echo -e "Nenhuma alteração na porta ssh.\n"
@@ -214,10 +213,10 @@ install_ssh() {
     fi
     }          
         echo -e "ssh já está instalado.\n"
-    change_ssh_port 
-    change_root
     else
         apt-get install -y ssh openssh-server | egrep 'version|instal'
+        change_ssh_port 
+        change_root
         echo -e "ssh instalado com sucesso.\n"
     systemctl restart ssh
     fi
@@ -254,14 +253,14 @@ install_github() {
     fi
     # Pergunta se deseja instalar
     echo
-    read -p "Deseja instalar o Git? (s/n): " choice
+    read -p "Deseja instalar o git? (s/n): " choice
     if [ "$choice" = "s" ]; then
-        echo -e "\nInstalando Git...\n"
+        echo -e "\nInstalando git...\n"
         apt-get update &> /dev/null
         apt-get install -y git | egrep -i instalado | grep -v Lendo
-        echo -e "\nGit instalado.\n"
+        echo -e "\ngit instalado.\n"
     else
-        echo -e "\nInstalação do Git cancelada.\n"
+        echo -e "\nInstalação do git cancelada.\n"
     fi
 }
 
@@ -285,11 +284,124 @@ remove_cdrom_source() {
 bashrc_script() {
     # Verifica se o arquivo .bashrc já foi alterado
     if grep -q "script bash.sh" ~/.bashrc; then
-        echo -e "O arquivo .bashrc já foi alterado pelo script."
+        echo -e "O arquivo .bashrc já foi alterado pelo script.\n"
     else
         echo -e "O arquivo .bashrc ainda não foi alterado pelo script."
+        mv ~/.bashrc ~/.bashrc.old
         cp .bashrc ~/.bashrc
-        echo -e "\nScript executado.\n"
+        source ~/.bashrc
+        source ~/.bashrc
+        echo -e "\nbash alterado.\n"
+    fi
+}
+
+############################################################################### man
+
+install_man() {
+    # Verifica se já está instalado
+    if [ -x "$(command -v man)" ]; then
+        echo -e "man já está instalado.\n"
+        return
+    fi
+    # Pergunta se deseja instalar
+    echo
+    read -p "Deseja instalar o man? (s/n): " choice
+    if [ "$choice" = "s" ]; then
+        echo -e "\nInstalando man...\n"
+        apt-get update &> /dev/null
+        apt-get install -y man | egrep -i instalado | grep -v Lendo
+        echo -e "\nman instalado.\n"
+    else
+        echo -e "\nInstalação do man cancelada.\n"
+    fi
+}
+
+############################################################################### ipv6
+
+disable_ipv6() {
+    # Verifica o estado atual do IPv6
+    ipv6_status=$(sysctl -n net.ipv6.conf.all.disable_ipv6)
+
+    # Verifica se o IPv6 está ativado (valor 0)
+    if [ "$ipv6_status" -eq 0 ]; then
+        read -p "O IPv6 está habilitado. Deseja desativá-lo? (s/n): " choice
+        if [ "$choice" = "s" ]; then
+            # Desativa o IPv6
+            bash /root/script/ipv6.sh
+            echo -e "IPv6 desativado com sucesso.\n"
+        else
+            echo -e "Nenhuma alteração feita.\n"
+        fi
+    else
+        echo -e "O IPv6 já está desativado.\n"
+    fi
+}
+
+############################################################################### rsyslog
+
+
+install_rsyslog() {
+    # Verifica se já está instalado
+    if [ -x "$(command -v rsyslogd)" ]; then
+    echo -e "rsyslog já está instalado.\n"
+        return
+    fi
+    # Pergunta se deseja instalar
+    echo
+    read -p "Deseja instalar o rsyslog? (s/n): " choice
+    if [ "$choice" = "s" ]; then
+        echo -e "\nInstalando rsyslog...\n"
+        apt-get update &> /dev/null
+        apt-get install -y rsyslog | egrep -i instalado | grep -v Lendo
+        echo
+        echo -e "Após apertar ENTER, será aberto o rsyslog.conf para edição." 
+        read -p "Remova os logs desnecessários."
+        vi /etc/rsyslog.conf
+        systemctl restart rsyslog.service
+        echo -e "\nrsyslog instalado.\n"
+    else
+        echo -e "\nInstalação do rsyslog cancelada.\n"
+    fi
+}
+
+############################################################################### journald
+
+
+journal_script() {
+    # Verifica
+    if grep -q "script" /etc/systemd/journald.conf; then
+        echo -e "O arquivo journal já foi alterado pelo script.\n"
+    else
+        echo -e "O arquivo journal ainda não foi alterado pelo script."
+        mv /etc/systemd/journald.conf /etc/systemd/journald.conf.old
+        cp -a /root/script/journald.conf /etc/systemd/journald.conf
+        systemctl restart systemd-journald
+        echo -e "journal alterado.\n"
+    fi
+} 
+
+############################################################################### checkmk
+
+install_checkmk() {
+    # Verifica 
+    if [ -x "$(command -v omdx)" ]; then
+        echo -e "checkmk já está instalado.\n"
+        return
+    fi
+
+    # Pergunta se deseja instalar
+    echo
+    read -p "Deseja instalar o checkmk, para versão Debian 12? (s/n): " choice
+    if [ "$choice" = "s" ]; then
+        echo -e "\nInstalando checkmk...\n"
+        wget https://download.checkmk.com/checkmk/2.2.0p20/check-mk-cloud-2.2.0p20_0.bookworm_amd64.deb
+        apt-get install -y ./check-mk-cloud-2.2.0p20_0.bookworm_amd64.deb | egrep -i instalado | grep -v Lendo
+        omd version
+        omd create monitoramento
+        omd start monitoramento
+        echo -e "\ncheckmk instalado.\n"
+    else
+        echo -e "\nInstalação do checkmk cancelada.\n"
     fi
 }
 
@@ -299,9 +411,15 @@ bashrc_script() {
 
 ###############################################################################
 
-###############################################################################
- 
-###############################################################################
+
+
+
+
+
+
+
+
+
 
 # Executa as instalações
 install_bash_completion
@@ -317,6 +435,8 @@ install_webmin
 install_github
 remove_cdrom_source
 bashrc_script
-
-
-
+install_man
+disable_ipv6
+install_rsyslog
+journal_script
+install_checkmk
